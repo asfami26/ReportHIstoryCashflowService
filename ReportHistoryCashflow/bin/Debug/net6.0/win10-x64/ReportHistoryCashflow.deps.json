@@ -10,7 +10,6 @@
       "ReportHistoryCashflow/1.0.0": {
         "dependencies": {
           "ClosedXML": "0.102.0",
-          "Dapper": "2.0.143",
           "Microsoft.Data.SqlClient": "5.1.1",
           "Microsoft.Extensions.Configuration": "7.0.0",
           "Microsoft.Extensions.Configuration.Json": "7.0.0",
@@ -891,14 +890,6 @@
           "lib/netstandard2.1/ClosedXML.dll": {
             "assemblyVersion": "0.102.0.0",
             "fileVersion": "0.102.0.0"
-          }
-        }
-      },
-      "Dapper/2.0.143": {
-        "runtime": {
-          "lib/net5.0/Dapper.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.0.143.55328"
           }
         }
       },
@@ -2677,13 +2668,6 @@
       "sha512": "sha512-y4AiOq/XwJxbTV8wb9h32Ze9zme7oN6Qa7mpgzlCTK847d6P8BC3NDuqBj3X9RnC/CXmSwsmRS/vrIz7aHwijQ==",
       "path": "closedxml/0.102.0",
       "hashPath": "closedxml.0.102.0.nupkg.sha512"
-    },
-    "Dapper/2.0.143": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-Vh0U+Fins3IpS7APUlrzga3+1mswWngB5fZ0xj4w+FQR5JhJzA5uHV5rSepkahvmshNZUA0YcHtae9vFQpiVTw==",
-      "path": "dapper/2.0.143",
-      "hashPath": "dapper.2.0.143.nupkg.sha512"
     },
     "DocumentFormat.OpenXml/2.16.0": {
       "type": "package",

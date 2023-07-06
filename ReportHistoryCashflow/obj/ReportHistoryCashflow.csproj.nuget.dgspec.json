@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj": {}
+    "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj": {
+    "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj",
         "projectName": "ReportHistoryCashflow",
-        "projectPath": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj",
+        "projectPath": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHistoryCashflow\\obj\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -44,17 +44,9 @@
               "target": "Package",
               "version": "[0.102.0, )"
             },
-            "Dapper": {
-              "target": "Package",
-              "version": "[2.0.143, )"
-            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[5.1.1, )"
-            },
-            "Microsoft.Extensions.Configuration": {
-              "target": "Package",
-              "version": "[7.0.0, )"
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
@@ -63,10 +55,6 @@
             "Microsoft.Windows.Compatibility": {
               "target": "Package",
               "version": "[7.0.4, )"
-            },
-            "System.Data.Common": {
-              "target": "Package",
-              "version": "[4.3.0, )"
             }
           },
           "imports": [

@@ -1,5 +1,4 @@
-﻿using Dapper;
-using Microsoft.IdentityModel.Protocols;
+﻿using Microsoft.IdentityModel.Protocols;
 using System;
 using System.Data;
 using System.ServiceProcess;
