@@ -232,7 +232,7 @@ namespace ReportHistoryCashflow
 
                     Console.WriteLine("Data  exported to ReportHistoryCashflow.xlsx");
 
-                    Thread.Sleep(nsleep * 60 * 1000);
+                    Thread.Sleep(nsleep * 86400 * 1000);
                 }
             }
             catch (Exception)
