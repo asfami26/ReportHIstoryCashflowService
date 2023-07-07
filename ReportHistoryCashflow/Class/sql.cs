@@ -34,9 +34,9 @@ namespace ReportHistoryCashflow.Class
                     sqlCmd.CommandText = strSqlQuery;
                     iRowsAffected = sqlCmd.ExecuteNonQuery();
                 }
-                catch (Exception Ex)
+                catch (Exception)
                 {
-                    throw Ex;
+                    throw ;
                 }
                 finally
                 {
@@ -79,9 +79,9 @@ namespace ReportHistoryCashflow.Class
                     dt = new DataTable();
                     sqlDa.Fill(dt);
                 }
-                catch (Exception Ex)
+                catch (Exception)
                 {
-                    throw Ex;
+                    throw;
                 }
                 finally
                 {
@@ -121,7 +121,7 @@ namespace ReportHistoryCashflow.Class
                     dt = new DataTable();
                     sqlDa.Fill(dt);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     dt = null;
                 }
@@ -186,9 +186,9 @@ namespace ReportHistoryCashflow.Class
 
                     iRowsAffected = sqlCmd.ExecuteNonQuery();
                 }
-                catch (Exception Ex)
+                catch (Exception)
                 {
-                    throw Ex;
+                    throw;
                 }
                 finally
                 {
@@ -244,9 +244,9 @@ namespace ReportHistoryCashflow.Class
                     dt = new DataTable();
                     sqlDa.Fill(dt);
                 }
-                catch (Exception Ex)
+                catch (Exception)
                 {
-                    throw Ex;
+                    throw;
                 }
                 finally
                 {

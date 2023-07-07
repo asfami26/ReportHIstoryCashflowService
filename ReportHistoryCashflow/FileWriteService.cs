@@ -42,10 +42,8 @@ namespace ReportHistoryCashflow
             {
                 while (true)
                 {
-                   
+
                     sql conn = new sql();
-                    string sql = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
-                    DataTable dth = conn.GetDataTable(sql);
 
                     DateTime currentDate = DateTime.Now;
                     DateTime nextYearDate = currentDate.AddYears(1);
@@ -60,14 +58,22 @@ namespace ReportHistoryCashflow
                     headerCellA2.Style.Font.FontColor = XLColor.White;
 
                     col++;
+
                     while (currentDate <= nextYearDate)
                     {
-                        var headerCell = worksheet.Cell(2, col);
-                        headerCell.Value = currentDate.ToString("dd-MMM-yyyy");
-                        headerCell.Style.Fill.BackgroundColor = XLColor.TwilightLavender;
-                        headerCell.Style.Font.FontColor = XLColor.White;
-                        currentDate = currentDate.AddDays(1);
-                        col++;
+                        if (currentDate.DayOfWeek != DayOfWeek.Saturday && currentDate.DayOfWeek != DayOfWeek.Sunday)
+                        {
+                            var headerCell = worksheet.Cell(2, col);
+                            headerCell.Value = currentDate.ToString("dd-MMM-yyyy");
+                            headerCell.Style.Fill.BackgroundColor = XLColor.TwilightLavender;
+                            headerCell.Style.Font.FontColor = XLColor.White;
+                            currentDate = currentDate.AddDays(1);
+                            col++;
+                        }
+                        else
+                        {
+                            currentDate = currentDate.AddDays(1);
+                        }
                     }
 
                     var headerRange = worksheet.Range(worksheet.Cell(3, 1), worksheet.Cell(3, col - 1));
@@ -80,7 +86,11 @@ namespace ReportHistoryCashflow
                     headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                     int row = 4;
-
+                    string sql = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
+                    DataTable dth = conn.GetDataTable(sql);
+                    string sqlcount = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') or ParentKategori_Id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
+                    DataTable rc = conn.GetDataTable(sqlcount);
+                    int rowhasil = rc.Rows.Count + row;
                     foreach (DataRow dr in dth.Rows)
                     {
                         worksheet.Cell(row, 1).Value = dr["Name"].ToString();
@@ -98,7 +108,7 @@ namespace ReportHistoryCashflow
                                 DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
                                 string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                                 string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-                                //string rs = "Select Nominal from Cashflow where TanggalTransaksi between '" + day1 + "' AND '" + day2 + "' AND TipeTransaksiId = '1' AND  ProdukId = '" + drd["id"].ToString() + "'";
+
                                 string rs = "select " +
                                     "replace(pt.Nominal,'.00','') as nominal " +
                                     "from ProTrxFinansial_Log p " +
@@ -113,30 +123,23 @@ namespace ReportHistoryCashflow
                                         worksheet.Cell(row, j).Value = drv["Nominal"].ToString();
                                     }
                                 }
+                                string rss = "select replace(ISNULL(SUM(pt.Nominal), 0), '.00','') as Nominal" +
+                                   " from ProTrxFinansial_Log p" +
+                                   " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
+                                   "where p.TypeTransaksi='1' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
+                                DataTable dts = conn.GetDataTable(rss);
+                                if (dts != null)
+                                {
+                                    foreach (DataRow drs in dts.Rows)
+                                    {
+                                        worksheet.Cell(rowhasil, j).Value = drs["Nominal"].ToString();
+                                    }
+                                }
                             }
                             row++;
                         }
                     }
-                    
-                    for (int j = 2; j < col; j++)
-                    {
-                        
-                        DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                        string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                        string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-                        string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal" +
-                            " from ProTrxFinansial_Log p" +
-                            " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                            "where p.TypeTransaksi='1' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                        DataTable dts = conn.GetDataTable(rss);
-                        if (dts != null)
-                        {
-                            foreach (DataRow drs in dts.Rows)
-                            {
-                                worksheet.Cell(row, j).Value = drs["Nominal"].ToString();
-                            }
-                        }
-                    }
+
                     rowmasuk = row;
                     Console.WriteLine(rowmasuk);
                     worksheet.Cell(row, 1).Value = "Total Dana Masuk";
@@ -196,13 +199,13 @@ namespace ReportHistoryCashflow
 
                     for (int j = 2; j < col; j++)
                     {
-                        var hasilmasuk = (string)worksheet.Cell(rowmasuk, j).Value != "" ? worksheet.Cell(rowmasuk, j).Value : 0;
                         DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
                         string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                         string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
 
+                        var hasilmasuk = (string)worksheet.Cell(rowmasuk, j).Value != "" ? worksheet.Cell(rowmasuk, j).Value : 0;
                         string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal," +
-                            "replace(SUM(pt.Nominal) - "+ hasilmasuk + ", '.00','') as Total" +
+                            "replace(ISNULL(SUM(pt.Nominal) - " + hasilmasuk + ",0), '.00','') as Total" +
                             " from ProTrxFinansial_Log p" +
                             " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
                             "where p.TypeTransaksi='2' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
