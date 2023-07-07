@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using ReportHistoryCashflow.Class;
 using System.Collections;
 using System.Globalization;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace ReportHistoryCashflow
 {
@@ -34,15 +35,16 @@ namespace ReportHistoryCashflow
         public void Working()
         {
             int nsleep = 1;
+            int rowmasuk = 0;
 
             try
             {
                 while (true)
                 {
+                   
                     sql conn = new sql();
                     string sql = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
                     DataTable dth = conn.GetDataTable(sql);
-
 
                     DateTime currentDate = DateTime.Now;
                     DateTime nextYearDate = currentDate.AddYears(1);
@@ -97,10 +99,7 @@ namespace ReportHistoryCashflow
                                 string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
                                 //string rs = "Select Nominal from Cashflow where TanggalTransaksi between '" + day1 + "' AND '" + day2 + "' AND TipeTransaksiId = '1' AND  ProdukId = '" + drd["id"].ToString() + "'";
                                 string rs = "select " +
-                                    "replace(pt.Nominal,'.00','') as nominal, " +
-                                    "pt.KategoriName as kategori, " +
-                                    "p.TypeTransaksi as [type], " +
-                                    "pt.Kategori " +
+                                    "replace(pt.Nominal,'.00','') as nominal " +
                                     "from ProTrxFinansial_Log p " +
                                     "join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
                                     "where p.TypeTransaksi ='1' and pt.Kategori ='" + dr["Id"].ToString() + "' and pt.SubKategori='" +
@@ -117,14 +116,13 @@ namespace ReportHistoryCashflow
                             row++;
                         }
                     }
-
-
+                    
                     for (int j = 2; j < col; j++)
                     {
+                        
                         DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
                         string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                         string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-
                         string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal" +
                             " from ProTrxFinansial_Log p" +
                             " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
@@ -138,6 +136,8 @@ namespace ReportHistoryCashflow
                             }
                         }
                     }
+                    rowmasuk = row;
+                    Console.WriteLine(rowmasuk);
                     worksheet.Cell(row, 1).Value = "Total Dana Masuk";
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
@@ -174,7 +174,6 @@ namespace ReportHistoryCashflow
                                 DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
                                 string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                                 string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-                                //string rs = "Select Nominal from Cashflow where TanggalTransaksi between '" + day1 + "' AND '" + day2 + "' AND TipeTransaksiId = '1' AND  ProdukId = '" + drd["id"].ToString() + "'";
                                 string rs = "select " +
                                     "replace(SUM(pt.Nominal),'.00','') as nominal " +
                                     "from ProTrxFinansial_Log p " +
@@ -196,11 +195,13 @@ namespace ReportHistoryCashflow
 
                     for (int j = 2; j < col; j++)
                     {
+                        var hasilmasuk = (string)worksheet.Cell(rowmasuk, j).Value != "" ? worksheet.Cell(rowmasuk, j).Value : 0;
                         DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
                         string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                         string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
 
-                        string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal" +
+                        string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal," +
+                            "replace(SUM(pt.Nominal) - "+ hasilmasuk + ", '.00','') as Total" +
                             " from ProTrxFinansial_Log p" +
                             " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
                             "where p.TypeTransaksi='2' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
@@ -210,6 +211,7 @@ namespace ReportHistoryCashflow
                             foreach (DataRow drs in dts.Rows)
                             {
                                 worksheet.Cell(row, j).Value = drs["Nominal"].ToString();
+                                worksheet.Cell(row + 1, j).Value = drs["Total"].ToString();
                             }
                         }
                     }
@@ -230,7 +232,7 @@ namespace ReportHistoryCashflow
                     string filePath = $@"D:\ReportHistoryCashflow_{tanggal}.xlsx";
                     workbook.SaveAs(filePath);
 
-                    Console.WriteLine("Data  exported to ReportHistoryCashflow.xlsx");
+                    Console.WriteLine("Data exported to ReportHistoryCashflow.xlsx");
 
                     Thread.Sleep(nsleep * 86400 * 1000);
                 }
