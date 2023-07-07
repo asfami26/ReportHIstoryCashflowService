@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Data.SqlClient;
 using System.Linq;
 using System.ServiceProcess;
@@ -229,8 +230,12 @@ namespace ReportHistoryCashflow
                     worksheet.Columns().AdjustToContents();
 
                     string tanggal = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                    string filePath = $@"D:\ReportHistoryCashflow_{tanggal}.xlsx";
-                    workbook.SaveAs(filePath);
+                    string filePath = $@"C:\ReportHistoryCashFlow";
+
+                    bool exists = Directory.Exists(filePath);
+
+                    if (!exists) Directory.CreateDirectory(filePath);
+                    workbook.SaveAs(filePath + $@"\ReportHistoryCashflow_{tanggal}.xlsx");
 
                     Console.WriteLine("Data exported to ReportHistoryCashflow.xlsx");
 
