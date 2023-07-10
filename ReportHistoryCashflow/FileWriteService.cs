@@ -58,7 +58,7 @@ namespace ReportHistoryCashflow
                     headerCellA2.Style.Font.FontColor = XLColor.White;
 
                     col++;
-
+                   
                     while (currentDate <= nextYearDate)
                     {
                         if (currentDate.DayOfWeek != DayOfWeek.Saturday && currentDate.DayOfWeek != DayOfWeek.Sunday)
@@ -69,6 +69,7 @@ namespace ReportHistoryCashflow
                             headerCell.Style.Font.FontColor = XLColor.White;
                             currentDate = currentDate.AddDays(1);
                             col++;
+
                         }
                         else
                         {
@@ -109,39 +110,38 @@ namespace ReportHistoryCashflow
                                 string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
                                 string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
 
-                                string rs = "select " +
-                                    "replace(pt.Nominal,'.00','') as nominal " +
-                                    "from ProTrxFinansial_Log p " +
-                                    "join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                                    "where p.TypeTransaksi ='1' and pt.Kategori ='" + dr["Id"].ToString() + "' and pt.SubKategori='" +
-                                    drd["id"].ToString() + "' and TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                                DataTable dtv = conn.GetDataTable(rs);
-                                if (dtv != null)
+                            string rs = "select " +
+                                "replace(pt.Nominal,'.00','') as nominal " +
+                                "from ProTrxFinansial_Log p " +
+                                "join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
+                                "where p.TypeTransaksi ='1' and pt.Kategori ='" + dr["Id"].ToString() + "' and pt.SubKategori='" +
+                                drd["id"].ToString() + "' and TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
+                            DataTable dtv = conn.GetDataTable(rs);
+                            if (dtv != null)
+                            {
+                                foreach (DataRow drv in dtv.Rows)
                                 {
-                                    foreach (DataRow drv in dtv.Rows)
-                                    {
-                                        worksheet.Cell(row, j).Value = drv["Nominal"].ToString();
-                                    }
-                                }
-                                string rss = "select replace(ISNULL(SUM(pt.Nominal), 0), '.00','') as Nominal" +
-                                   " from ProTrxFinansial_Log p" +
-                                   " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                                   "where p.TypeTransaksi='1' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                                DataTable dts = conn.GetDataTable(rss);
-                                if (dts != null)
-                                {
-                                    foreach (DataRow drs in dts.Rows)
-                                    {
-                                        worksheet.Cell(rowhasil, j).Value = drs["Nominal"].ToString();
-                                    }
+                                    worksheet.Cell(row, j).Value = drv["Nominal"].ToString();
                                 }
                             }
-                            row++;
+                            string rss = "select replace(ISNULL(SUM(pt.Nominal), 0), '.00','') as Nominal" +
+                               " from ProTrxFinansial_Log p" +
+                               " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
+                               "where p.TypeTransaksi='1' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
+                            DataTable dts = conn.GetDataTable(rss);
+                            if (dts != null)
+                            {
+                                foreach (DataRow drs in dts.Rows)
+                                {
+                                    worksheet.Cell(rowhasil, j).Value = drs["Nominal"].ToString();
+                                }
+                            }
+                        }
+                        row++;
                         }
                     }
 
                     rowmasuk = row;
-                    Console.WriteLine(rowmasuk);
                     worksheet.Cell(row, 1).Value = "Total Dana Masuk";
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
@@ -196,7 +196,7 @@ namespace ReportHistoryCashflow
                             row++;
                         }
                     }
-
+                    
                     for (int j = 2; j < col; j++)
                     {
                         DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
@@ -204,7 +204,7 @@ namespace ReportHistoryCashflow
                         string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
 
                         var hasilmasuk = (string)worksheet.Cell(rowmasuk, j).Value != "" ? worksheet.Cell(rowmasuk, j).Value : 0;
-                        string rss = "select replace(SUM(pt.Nominal), '.00','') as Nominal," +
+                        string rss = "select replace(ISNULL(SUM(pt.Nominal),0), '.00','') as Nominal," +
                             "replace(ISNULL(SUM(pt.Nominal) - " + hasilmasuk + ",0), '.00','') as Total" +
                             " from ProTrxFinansial_Log p" +
                             " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
