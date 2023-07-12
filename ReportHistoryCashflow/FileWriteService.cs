@@ -76,7 +76,7 @@ namespace ReportHistoryCashflow
                             currentDate = currentDate.AddDays(1);
                         }
                     }
-                    Console.WriteLine("tanggal selesai");
+                    
                     string sql = "SELECT [Name], [Id], [SortOrder], [ParentId], [SubId] " +
                         "FROM (SELECT Id,[Name],0 AS [Level],ParentKategori_Id AS ParentId, " +
                         "[order],1 AS [SortOrder],NULL AS [SubId] " +
@@ -132,7 +132,7 @@ namespace ReportHistoryCashflow
                         }
                         row++;
                     }
-                    Console.WriteLine("Proses 1 selesai");
+                   
                     var headerRange = worksheet.Range(worksheet.Cell(3, 1), worksheet.Cell(3, col - 1));
                     headerRange.Merge();
                     headerRange.Value = "Dana Masuk ";
@@ -250,7 +250,7 @@ namespace ReportHistoryCashflow
                         }
                         row++;
                     }
-                    Console.WriteLine("proses 2 selesai");
+
                     worksheet.Cell(row, 1).Value = "Total Dana Keluar";
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
@@ -262,6 +262,7 @@ namespace ReportHistoryCashflow
                     headerRange.Style.Font.FontColor = XLColor.Black;
                     headerRange.Style.Fill.BackgroundColor = XLColor.Orange;
 
+                    #region "Code Lama"
                     //string sql = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
                     //DataTable dth = conn.GetDataTable(sql);
                     //string sqlcount = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') or ParentKategori_Id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
@@ -404,6 +405,7 @@ namespace ReportHistoryCashflow
                     //headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     //headerRange.Style.Font.FontColor = XLColor.Black;
                     //headerRange.Style.Fill.BackgroundColor = XLColor.Orange;
+                    #endregion
 
                     worksheet.Columns().AdjustToContents();
 
