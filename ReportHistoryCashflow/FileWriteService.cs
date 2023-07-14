@@ -36,8 +36,10 @@ namespace ReportHistoryCashflow
         public void Working()
         {
             int nsleep = 1;
-            int rowmasuk = 0;
-
+            int rowhasil = 0;
+            int col = 0;
+            int row = 0;
+            int rowkeluar = 0;
             try
             {
                 while (true)
@@ -51,8 +53,8 @@ namespace ReportHistoryCashflow
                     var workbook = new XLWorkbook();
                     var worksheet = workbook.Worksheets.Add("ReportHistoryCashflow");
 
-                    int col = 1;
-                    int row = 4;
+                     col = 1;
+                     row = 4;
 
                     var headerCellA2 = worksheet.Cell(2, col);
                     headerCellA2.Value = "Keterangan";
@@ -76,7 +78,8 @@ namespace ReportHistoryCashflow
                             currentDate = currentDate.AddDays(1);
                         }
                     }
-                    
+                    Console.WriteLine("Proses Tanggal Selesai");
+
                     string sql = "SELECT [Name], [Id], [SortOrder], [ParentId], [SubId] " +
                         "FROM (SELECT Id,[Name],0 AS [Level],ParentKategori_Id AS ParentId, " +
                         "[order],1 AS [SortOrder],NULL AS [SubId] " +
@@ -93,7 +96,7 @@ namespace ReportHistoryCashflow
                         "[SortOrder], [Level], [order]";
 
                     DataTable dth = conn.GetDataTable(sql);
-                    int rowhasil = dth.Rows.Count + row;
+                    rowhasil = dth.Rows.Count + row;
 
                     foreach (DataRow dr in dth.Rows)
                     {
@@ -102,37 +105,45 @@ namespace ReportHistoryCashflow
                         if (fbold == "1") { worksheet.Cell(row, 1).Style.Font.Bold = true; }
                         else { worksheet.Cell(row, 1).Style.Font.Bold = false; }
 
-                        for (int j = 2; j < col; j++)
+                        col = 2;
+                        string qtotal = "WITH TanggalProyeksi AS " +
+                            "(SELECT DATEADD(DAY, number, CONVERT(date, GETDATE())) AS Tanggal " +
+                            "FROM master.dbo.spt_values " +
+                            "WHERE type = 'P' " +
+                            "AND DATEADD(DAY, number, CONVERT(date, GETDATE())) <= DATEADD(YEAR, 1, CONVERT(date, GETDATE())) " +
+                            "AND DATEPART(WEEKDAY, DATEADD(DAY, number, CONVERT(date, GETDATE()))) NOT IN (1, 7)) " +
+                            "SELECT CAST(tp.Tanggal AS date) AS Tanggal, pt.Kategori, pt.SubKategori, " +
+                            "REPLACE(SUM(pt.Nominal), '.00', '') AS Nominal, " +
+                            "(SELECT REPLACE(CAST(SUM(pt2.Nominal) AS varchar), '.00', '') " +
+                            "FROM ProTrxFinansial_Log p2 " +
+                            "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
+                            "WHERE p2.TypeTransaksi = '1' " +
+                            "AND CAST(p2.TanggalProyeksi AS date) = CAST(tp.Tanggal AS date)) AS TotalKategori " +
+                            "FROM TanggalProyeksi tp " +
+                            "LEFT JOIN ProTrxFinansial_Log p ON CONVERT(date, p.TanggalProyeksi) = CAST(tp.Tanggal AS date) " +
+                            "LEFT JOIN ProTrxFinansialItem pt ON p.Data_Id = pt.ProTrxFinansial_Id " +
+                            "WHERE (pt.Kategori IS NULL OR pt.SubKategori IS NULL OR " +
+                            "(pt.Kategori = '" + dr["ParentId"].ToString() + "' AND pt.SubKategori = '" + dr["SubId"].ToString() + "')) " +
+                            "AND (p.TypeTransaksi = '1' OR p.TypeTransaksi IS NULL) " +
+                            "GROUP BY CAST(tp.Tanggal AS date), pt.Kategori, pt.SubKategori " +
+                            "ORDER BY CAST(tp.Tanggal AS date)";
+
+                        DataTable dttotal = conn.GetDataTable(qtotal);
+
+                        foreach (DataRow drtotal in dttotal.Rows)
                         {
-                            DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                            string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                            string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-
-                            string qtotal = "SELECT pt.Kategori, pt.SubKategori, " +
-                                "REPLACE(SUM(pt.Nominal), '.00', '') as Nominal, " +
-                                "ISNULL((SELECT REPLACE(SUM(pt2.Nominal), '.00', '') " +
-                                "FROM ProTrxFinansial_Log p2 " +
-                                "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
-                                "WHERE p2.TypeTransaksi = '1' AND " +
-                                "p2.TanggalProyeksi BETWEEN '"+day1+"' AND '"+day2+"'), 0) as TotalKategori " +
-                                "FROM ProTrxFinansial_Log p JOIN ProTrxFinansialItem pt ON p.Data_Id = pt.ProTrxFinansial_Id " +
-                                "WHERE p.TypeTransaksi = '1' AND " +
-                                "p.TanggalProyeksi BETWEEN '"+day1+"' AND '"+day2+"' AND " +
-                                "pt.Kategori = '" + dr["ParentId"].ToString() +"' AND pt.SubKategori = '"+ dr["SubId"].ToString() + "' " +
-                                "GROUP BY pt.Kategori, pt.SubKategori " +
-                                "HAVING (pt.Kategori IS NOT NULL OR pt.SubKategori IS NOT NULL) AND pt.SubKategori IS NOT NULL";
-
-                            DataTable dttotal = conn.GetDataTable(qtotal);
-
-                            foreach (DataRow drtotal in dttotal.Rows)
+                            worksheet.Cell(row, col).Value = drtotal["Nominal"].ToString() == null ? "" : drtotal["Nominal"].ToString();
+                            if (drtotal["TotalKategori"] != null && !DBNull.Value.Equals(drtotal["TotalKategori"]))
                             {
-                                worksheet.Cell(row, j).Value = drtotal["Nominal"].ToString();
-                                worksheet.Cell(rowhasil, j).Value = drtotal["TotalKategori"].ToString();
+                                worksheet.Cell(rowhasil, col).Value = drtotal["TotalKategori"].ToString();
                             }
+
+                            col++;
                         }
                         row++;
                     }
-                   
+                    Console.WriteLine("Proses Pertama Selesai");
+
                     var headerRange = worksheet.Range(worksheet.Cell(3, 1), worksheet.Cell(3, col - 1));
                     headerRange.Merge();
                     headerRange.Value = "Dana Masuk ";
@@ -142,7 +153,6 @@ namespace ReportHistoryCashflow
                     headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                    rowmasuk = row;
                     worksheet.Cell(row, 1).Value = "Total Dana Masuk";
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
@@ -172,85 +182,58 @@ namespace ReportHistoryCashflow
                         "WHERE Id IN ('3025', '3003', '3006', '3004')) p ON p.Id = k.ParentKategori_Id) AS T " +
                         "WHERE ParentId IS NULL OR (ParentId <> '3004' OR (ParentId = '3004' AND [id] = '3010')) " +
                         "ORDER BY CASE WHEN ParentId IS NULL THEN [order] ELSE (SELECT [order] FROM Kategori WHERE Id = T.ParentId) END, " +
-                        "[SortOrder], [Level], [order]"; 
-
+                        "[SortOrder], [Level], [order]";
                     DataTable dth2 = conn.GetDataTable(sql2);
-                    int rowkeluar = dth2.Rows.Count + row;
-                   
+                    rowkeluar = dth2.Rows.Count + row;
                     foreach (DataRow dr2 in dth2.Rows)
                     {
                         worksheet.Cell(row, 1).Value = dr2["Name"].ToString();
                         string? fbold = dr2["SortOrder"].ToString();
                         if (fbold == "1") { worksheet.Cell(row, 1).Style.Font.Bold = true; }
                         else { worksheet.Cell(row, 1).Style.Font.Bold = false; }
+                        col = 2;
+                        string qtotal = "WITH TanggalProyeksi AS " +
+                            "(SELECT DATEADD(DAY, number, CONVERT(date, GETDATE())) AS Tanggal " +
+                            "FROM master.dbo.spt_values " +
+                            "WHERE type = 'P' " +
+                            "AND DATEADD(DAY, number, CONVERT(date, GETDATE())) <= DATEADD(YEAR, 1, CONVERT(date, GETDATE())) " +
+                            "AND DATEPART(WEEKDAY, DATEADD(DAY, number, CONVERT(date, GETDATE()))) NOT IN (1, 7)) " +
+                            "SELECT CAST(tp.Tanggal AS date) AS Tanggal, pt.Kategori, pt.SubKategori, " +
+                            "REPLACE(SUM(pt.Nominal), '.00', '') AS Nominal, " +
+                            "(SELECT REPLACE(CAST(SUM(pt2.Nominal) AS varchar), '.00', '') " +
+                            "FROM ProTrxFinansial_Log p2 " +
+                            "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
+                            "WHERE p2.TypeTransaksi = '2' " +
+                            "AND CAST(p2.TanggalProyeksi AS date) = CAST(tp.Tanggal AS date)) AS TotalKategori " +
+                            "FROM TanggalProyeksi tp " +
+                            "LEFT JOIN ProTrxFinansial_Log p ON CONVERT(date, p.TanggalProyeksi) = CAST(tp.Tanggal AS date) " +
+                            "LEFT JOIN ProTrxFinansialItem pt ON p.Data_Id = pt.ProTrxFinansial_Id " +
+                            "WHERE (pt.Kategori IS NULL OR pt.SubKategori IS NULL OR " +
+                            "(pt.Kategori = '" + dr2["ParentId"].ToString() + "' AND pt.SubKategori = '" + dr2["SubId"].ToString() + "')) " +
+                            "AND (p.TypeTransaksi = '2' OR p.TypeTransaksi IS NULL) " +
+                            "GROUP BY CAST(tp.Tanggal AS date), pt.Kategori, pt.SubKategori " +
+                            "ORDER BY CAST(tp.Tanggal AS date)";
 
-                        for (int j = 2; j < col; j++)
+                        DataTable dttotal = conn.GetDataTable(qtotal);
+                        foreach (DataRow drtotal in dttotal.Rows)
                         {
-                            DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                            string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                            string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-                            string cellValue = worksheet.Cell(rowmasuk, j).Value.ToString(); // Get the cell value as a string
-                            int hasilmasuk;
-
-                            if (string.IsNullOrEmpty(cellValue))
+                            if (drtotal["TotalKategori"] != null && !DBNull.Value.Equals(drtotal["TotalKategori"]))
                             {
-                                hasilmasuk = 0; 
-                            }
-                            else
-                            {
-                                if (int.TryParse(cellValue, out int parsedValue))
-                                {
-                                    hasilmasuk = parsedValue; 
-                                }
-                                else
-                                {
-                                    hasilmasuk = 0; 
-                                }
-                            }
-
-                            string qtotal = "SELECT pt.Kategori, pt.SubKategori, REPLACE(SUM(pt.Nominal), '.00', '') as Nominal," +
-                                "(SELECT REPLACE(SUM(pt2.Nominal), '.00', '') FROM ProTrxFinansial_Log p2 " +
-                                "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
-                                "WHERE p2.TypeTransaksi = '2' AND p2.TanggalProyeksi " +
-                                "BETWEEN '"+ day1 + "' AND '"+ day2+"') as TotalKategori, " +
-                                "(SELECT REPLACE(ISNULL(SUM(pt2.Nominal),0) - '"+hasilmasuk+"', '.00', '') FROM ProTrxFinansial_Log p2 " +
-                                "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
-                                "WHERE p2.TypeTransaksi = '2' AND p2.TanggalProyeksi " +
-                                "BETWEEN '"+ day1 + "' AND '"+ day2 + "') as Cashflow " +
-                                "FROM ProTrxFinansial_Log p JOIN  ProTrxFinansialItem pt ON p.Data_Id = pt.ProTrxFinansial_Id " +
-                                "WHERE p.TypeTransaksi = '2' AND p.TanggalProyeksi BETWEEN '"+day1+"' AND '"+day2+ "' AND pt.Kategori = '"+ dr2["ParentId"].ToString() + "' AND pt.SubKategori = '"+ dr2["SubId"].ToString() + "'" +
-                                " GROUP BY pt.Kategori, " +
-                                "pt.SubKategori " +
-                                "HAVING (pt.Kategori IS NOT NULL OR pt.SubKategori IS NOT NULL) AND pt.SubKategori IS NOT NULL";
-
-                            DataTable dttotal = conn.GetDataTable(qtotal);
-
-                            if (dttotal.Rows.Count == 0)
-                            {
-                                string total = "SELECT REPLACE(ISNULL(SUM(pt2.Nominal),0) - '" + hasilmasuk + "', '.00', '') AS total " +
-                                    "FROM ProTrxFinansial_Log p2 " +
-                                    "JOIN ProTrxFinansialItem pt2 ON p2.Data_Id = pt2.ProTrxFinansial_Id " +
-                                    "WHERE p2.TypeTransaksi = '2' AND p2.TanggalProyeksi " +
-                                    "BETWEEN '" + day1 + "' AND '" + day2 + "'";
-                                dttotal = conn.GetDataTable(total);
-                                foreach (DataRow drtotal in dttotal.Rows)
-                                {
-                                    worksheet.Cell(rowkeluar + 1, j).Value = drtotal["total"].ToString();
-                                }
-                            }
-                            else
-                            {
-                                foreach (DataRow drtotal in dttotal.Rows)
-                                {
-                                    worksheet.Cell(row, j).Value = drtotal["Nominal"].ToString();
-                                    worksheet.Cell(rowkeluar, j).Value = drtotal["TotalKategori"].ToString();
-                                    worksheet.Cell(rowkeluar + 1, j).Value = drtotal["Cashflow"].ToString();
-                                }
-                            }
+                                worksheet.Cell(row, col).Value = drtotal["Nominal"].ToString(); 
+                                string danamasuk = worksheet.Cell(rowhasil, col).Value.ToString();
+                                string? danakeluar = drtotal["TotalKategori"].ToString();
+                                decimal decimalA = decimal.TryParse(danamasuk, out decimal decimalValueA) ? decimalValueA : 0;
+                                decimal decimalB = decimal.TryParse(danakeluar, out decimal decimalValueB) ? decimalValueB : 0;
+                                decimal hasil = decimalB-decimalA;
+                                worksheet.Cell(rowkeluar, col).Value = danakeluar;
+                                worksheet.Cell(rowkeluar+1, col).Value = hasil;
+                            } 
+                            col++;      
                         }
                         row++;
                     }
-
+                    Console.WriteLine("Proses Kedua Selesai");
+                  
                     worksheet.Cell(row, 1).Value = "Total Dana Keluar";
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
@@ -261,151 +244,6 @@ namespace ReportHistoryCashflow
                     headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
                     headerRange.Style.Font.FontColor = XLColor.Black;
                     headerRange.Style.Fill.BackgroundColor = XLColor.Orange;
-
-                    #region "Code Lama"
-                    //string sql = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
-                    //DataTable dth = conn.GetDataTable(sql);
-                    //string sqlcount = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','3004') or ParentKategori_Id in('3025','3003','3006','3004') ORDER BY [Name] DESC";
-                    //DataTable rc = conn.GetDataTable(sqlcount);
-                    //int rowhasil = rc.Rows.Count + row;
-                    //foreach (DataRow dr in dth.Rows)
-                    //{
-                    //    worksheet.Cell(row, 1).Value = dr["Name"].ToString();
-                    //    worksheet.Cell(row, 1).Style.Font.Bold = true;
-                    //    row++;
-
-                    //    string query = "SELECT [Name], [id] FROM Kategori WHERE [TYPE] = '2' AND ParentKategori_Id = " + dr["Id"].ToString() + "";
-                    //    DataTable dtd = conn.GetDataTable(query);
-
-                    //    foreach (DataRow drd in dtd.Rows)
-                    //    {
-                    //        worksheet.Cell(row, 1).Value = "      " + drd["Name"].ToString();
-                    //        for (int j = 2; j < col; j++)
-                    //        {
-                    //            DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                    //            string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                    //            string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-
-                    //        string rs = "select " +
-                    //            "replace(pt.Nominal,'.00','') as nominal " +
-                    //            "from ProTrxFinansial_Log p " +
-                    //            "join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                    //            "where p.TypeTransaksi ='1' and pt.Kategori ='" + dr["Id"].ToString() + "' and pt.SubKategori='" +
-                    //            drd["id"].ToString() + "' and TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                    //        DataTable dtv = conn.GetDataTable(rs);
-                    //        if (dtv != null)
-                    //        {
-                    //            foreach (DataRow drv in dtv.Rows)
-                    //            {
-                    //                worksheet.Cell(row, j).Value = drv["Nominal"].ToString();
-                    //            }
-                    //        }
-                    //        string rss = "select replace(ISNULL(SUM(pt.Nominal), 0), '.00','') as Nominal" +
-                    //           " from ProTrxFinansial_Log p" +
-                    //           " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                    //           "where p.TypeTransaksi='1' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                    //        DataTable dts = conn.GetDataTable(rss);
-                    //        if (dts != null)
-                    //        {
-                    //            foreach (DataRow drs in dts.Rows)
-                    //            {
-                    //                worksheet.Cell(rowhasil, j).Value = drs["Nominal"].ToString();
-                    //            }
-                    //        }
-                    //    }
-                    //    row++;
-                    //    }
-                    //}
-
-                    //rowmasuk = row;
-                    //worksheet.Cell(row, 1).Value = "Total Dana Masuk";
-                    //headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
-                    //headerRange.Style.Font.FontColor = XLColor.Black;
-                    //headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
-                    //row++;
-
-                    //headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
-                    //headerRange.Merge();
-                    //headerRange.Value = "Dana Keluar";
-                    //headerRange.Style.Font.Bold = true;
-                    //headerRange.Style.Font.FontColor = XLColor.Black;
-                    //headerRange.Style.Fill.BackgroundColor = XLColor.LightPink;
-                    //headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    //headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    //row++;
-
-                    //string sql2 = "SELECT distinct([Name]), Id FROM Kategori where id in('3025','3003','3006','8') ORDER BY [Name] DESC";
-                    //DataTable dth2 = conn.GetDataTable(sql2);
-
-                    //foreach (DataRow dr2 in dth2.Rows)
-                    //{
-                    //    worksheet.Cell(row, 1).Value = dr2["Name"].ToString();
-                    //    worksheet.Cell(row, 1).Style.Font.Bold = true;
-                    //    row++;
-
-                    //    string query2 = "SELECT [Name], [id] FROM Kategori WHERE [TYPE] = '2' AND ParentKategori_Id = " + dr2["Id"].ToString() + "";
-                    //    DataTable dtd2 = conn.GetDataTable(query2);
-
-                    //    foreach (DataRow drd2 in dtd2.Rows)
-                    //    {
-                    //        worksheet.Cell(row, 1).Value = "      " + drd2["Name"].ToString();
-                    //        for (int j = 2; j < col; j++)
-                    //        {
-                    //            DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                    //            string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                    //            string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-                    //            string rs = "select " +
-                    //                "replace(SUM(pt.Nominal),'.00','') as nominal " +
-                    //                "from ProTrxFinansial_Log p " +
-                    //                "join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                    //                "where p.TypeTransaksi ='2' and pt.Kategori ='" + dr2["Id"].ToString() + "' and pt.SubKategori='" +
-                    //                drd2["id"].ToString() + "' and TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                    //            DataTable dtv = conn.GetDataTable(rs);
-                    //            if (dtv != null)
-                    //            {
-                    //                foreach (DataRow drv in dtv.Rows)
-                    //                {
-                    //                    worksheet.Cell(row, j).Value = drv["Nominal"].ToString();
-                    //                }
-                    //            }
-                    //        }
-                    //        row++;
-                    //    }
-                    //}
-
-                    //for (int j = 2; j < col; j++)
-                    //{
-                    //    DateTime date = DateTime.ParseExact(worksheet.Cell(2, j).Value.ToString(), "dd-MMM-yyyy", CultureInfo.InvariantCulture);
-                    //    string day1 = date.ToString("yyyy-MM-dd" + " 00:00:00.000");
-                    //    string day2 = date.ToString("yyyy-MM-dd" + " 23:59:59.000");
-
-                    //    var hasilmasuk = (string)worksheet.Cell(rowmasuk, j).Value != "" ? worksheet.Cell(rowmasuk, j).Value : 0;
-                    //    string rss = "select replace(ISNULL(SUM(pt.Nominal),0), '.00','') as Nominal," +
-                    //        "replace(ISNULL(SUM(pt.Nominal) - " + hasilmasuk + ",0), '.00','') as Total" +
-                    //        " from ProTrxFinansial_Log p" +
-                    //        " join ProTrxFinansialItem pt on p.Data_Id = pt.ProTrxFinansial_Id " +
-                    //        "where p.TypeTransaksi='2' and p.TanggalProyeksi between '" + day1 + "' and '" + day2 + "'";
-                    //    DataTable dts = conn.GetDataTable(rss);
-                    //    if (dts != null)
-                    //    {
-                    //        foreach (DataRow drs in dts.Rows)
-                    //        {
-                    //            worksheet.Cell(row, j).Value = drs["Nominal"].ToString();
-                    //            worksheet.Cell(row + 1, j).Value = drs["Total"].ToString();
-                    //        }
-                    //    }
-                    //}
-                    //worksheet.Cell(row, 1).Value = "Total Dana Keluar";
-                    //headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
-                    //headerRange.Style.Font.FontColor = XLColor.Black;
-                    //headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
-                    //row++;
-
-                    //worksheet.Cell(row, 1).Value = "Net Posisi Cashflow";
-                    //headerRange = worksheet.Range(worksheet.Cell(row, 1), worksheet.Cell(row, col - 1));
-                    //headerRange.Style.Font.FontColor = XLColor.Black;
-                    //headerRange.Style.Fill.BackgroundColor = XLColor.Orange;
-                    #endregion
 
                     worksheet.Columns().AdjustToContents();
 
