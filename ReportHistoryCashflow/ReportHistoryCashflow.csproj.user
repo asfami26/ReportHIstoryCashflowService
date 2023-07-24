@@ -3,9 +3,4 @@
   <PropertyGroup>
     <_LastSelectedProfileId>C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="FileWriteService.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
 </Project>

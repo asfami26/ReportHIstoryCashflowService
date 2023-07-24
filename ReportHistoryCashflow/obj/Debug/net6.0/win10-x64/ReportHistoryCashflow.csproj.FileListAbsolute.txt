@@ -684,3 +684,15 @@ C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportH
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Options.dll
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\appsettings.json
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Dapper.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Configuration.CommandLine.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Configuration.UserSecrets.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Hosting.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Logging.Configuration.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Logging.Console.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Logging.Debug.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Logging.EventLog.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Logging.EventSource.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Debug\net6.0\win10-x64\Microsoft.Extensions.Options.ConfigurationExtensions.dll
