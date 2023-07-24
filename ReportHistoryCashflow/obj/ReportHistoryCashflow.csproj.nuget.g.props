@@ -14,5 +14,10 @@
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore\7.0.9\buildTransitive\net6.0\Microsoft.EntityFrameworkCore.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore\7.0.9\buildTransitive\net6.0\Microsoft.EntityFrameworkCore.props')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.12.0\build\Microsoft.Azure.Functions.Worker.Sdk.props" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.12.0\build\Microsoft.Azure.Functions.Worker.Sdk.props')" />
   </ImportGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers Condition=" '$(PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers)' == '' ">C:\Users\User\.nuget\packages\microsoft.azure.functions.worker.sdk.analyzers\1.1.2</PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers>
+    <PkgMicrosoft_Azure_Functions_Worker_Sdk Condition=" '$(PkgMicrosoft_Azure_Functions_Worker_Sdk)' == '' ">C:\Users\User\.nuget\packages\microsoft.azure.functions.worker.sdk\1.12.0</PkgMicrosoft_Azure_Functions_Worker_Sdk>
+  </PropertyGroup>
 </Project>

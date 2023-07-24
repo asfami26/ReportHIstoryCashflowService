@@ -1,21 +1,11 @@
 ﻿using ClosedXML.Excel;
 using System.Data;
 using System.ServiceProcess;
-using ReportHistoryCashflow.Class;
 using ReportHistoryCashflow.Data;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using DocumentFormat.OpenXml.InkML;
-using Microsoft.Extensions.DependencyInjection;
-using System.Web.Services.Description;
-using System;
-using ReportHistoryCashflow.Model;
+
 using static ReportHistoryCashflow.Model.Kategori;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Data.SqlClient;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
-using DocumentFormat.OpenXml.Vml;
 
 namespace ReportHistoryCashflow
 {
