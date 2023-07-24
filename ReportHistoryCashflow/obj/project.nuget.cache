@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "7N3mGNdspEy3Qqvz9BUcLCvJG5Z/nBBUYAMdfTJWvHOUYQsmh8LfICbUZgOm+5485p5rfnaX2L1KRP1Mf/p18w==",
+  "dgSpecHash": "OCsxlYz5E/Wvtbegp/+Yf/itUSMRcTZY713d22WnC0GFYv5IduKNN5oVh8be3o2wXjy0yTdp+of6eWonULQIOw==",
   "success": true,
   "projectFilePath": "C:\\Users\\User\\Desktop\\ReportHistoryCashflow\\ReportHIstoryCashflowService\\ReportHistoryCashflow\\ReportHistoryCashflow.csproj",
   "expectedPackageFiles": [
@@ -11,9 +11,6 @@
     "C:\\Users\\User\\.nuget\\packages\\documentformat.openxml\\2.16.0\\documentformat.openxml.2.16.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\excelnumberformat\\1.1.0\\excelnumberformat.1.1.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\irony.netcore\\1.0.11\\irony.netcore.1.0.11.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\microsoft.azure.functions.worker.sdk\\1.12.0\\microsoft.azure.functions.worker.sdk.1.12.0.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\microsoft.azure.functions.worker.sdk.analyzers\\1.1.2\\microsoft.azure.functions.worker.sdk.analyzers.1.1.2.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\microsoft.azure.functions.worker.sdk.generators\\1.1.0-preview4\\microsoft.azure.functions.worker.sdk.generators.1.1.0-preview4.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\5.0.0\\microsoft.bcl.asyncinterfaces.5.0.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\microsoft.data.sqlclient\\5.1.1\\microsoft.data.sqlclient.5.1.1.nupkg.sha512",

@@ -85,54 +85,9 @@ namespace ReportHistoryCashflow
 
                     using (var dbContext = new DataContext(options))
                     {
-                        var query = (
-                             from k1 in dbContext.Kategori
-                             where new[] { 3025, 3003, 3006, 3004 }.Contains(k1.Id)
-                             select new KategoriResult
-                             {
-                                 Name = k1.Name,
-                                 Id = k1.Id,
-                                 SortOrder = 1,
-                                 ParentId = k1.ParentKategori_Id,
-                                 SubId = null,
-                                 Level = 0
-                             }
-                         )
-                         .Concat(
-                             from k2 in dbContext.Kategori
-                             join p in (
-                                 from k3 in dbContext.Kategori
-                                 where new[] { 3025, 3003, 3006, 3004 }.Contains(k3.Id)
-                                 select new
-                                 {
-                                     Id = k3.Id,
-                                     Level = 0,
-                                     ParentId = k3.Id,
-                                     Order = k3.Order
-                                 }
-                             ) on k2.ParentKategori_Id equals p.Id
-                             select new KategoriResult
-                             {
-                                 Name = k2.Id == 3004 && k2.Name == "Remis" ? "      " + k2.Name : "      " + k2.Name,
-                                 Id = k2.Id,
-                                 SortOrder = p.Level + 1,
-                                 ParentId = k2.ParentKategori_Id,
-                                 SubId = k2.Id,
-                                 Level = p.Level + 1
-                             }
-                         )
-                         .Where(t => t.ParentId == null || (t.ParentId != 3004 || (t.ParentId == 3004 && t.Id == 3008)));
-
-                        var orderedQuery = query.ToList()
-                                           .OrderBy(t => t.ParentId == null ? dbContext.Kategori.FirstOrDefault(k => k.Id == t.Id)?.Order : dbContext.Kategori.FirstOrDefault(k => k.Id == t.ParentId)?.Order)
-                                           .ThenBy(t => t.SortOrder)
-                                           .ThenBy(t => t.Level)
-                                           .ThenBy(t => t.Id);
-
-                        var result = orderedQuery.ToList();
-
+                        var result = KategoriQuery.GetKategoriResults(new int[] { 3025, 3003, 3006, 3004 }, 3008, dbContext);
                         row = 4;
-                        rowhasil = orderedQuery.Count() + row;
+                        rowhasil = result.Count() + row;
                         foreach (var item in result)
                         {
                             worksheet.Cell(row, 1).Value = item.Name;
@@ -190,60 +145,16 @@ namespace ReportHistoryCashflow
 
                     using (var dbContext = new DataContext(options))
                     {
-                        var query = (
-                             from k1 in dbContext.Kategori
-                             where new[] { 3025, 3003, 3006, 3004 }.Contains(k1.Id)
-                             select new KategoriResult
-                             {
-                                 Name = k1.Name,
-                                 Id = k1.Id,
-                                 SortOrder = 1,
-                                 ParentId = k1.ParentKategori_Id,
-                                 SubId = null,
-                                 Level = 0
-                             }
-                         )
-                         .Concat(
-                             from k2 in dbContext.Kategori
-                             join p in (
-                                 from k3 in dbContext.Kategori
-                                 where new[] { 3025, 3003, 3006, 3004 }.Contains(k3.Id)
-                                 select new
-                                 {
-                                     Id = k3.Id,
-                                     Level = 0,
-                                     ParentId = k3.Id,
-                                     Order = k3.Order
-                                 }
-                             ) on k2.ParentKategori_Id equals p.Id
-                             select new KategoriResult
-                             {
-                                 Name = k2.Id == 3004 && k2.Name == "Remis" ? "      " + k2.Name : "      " + k2.Name,
-                                 Id = k2.Id,
-                                 SortOrder = p.Level + 1,
-                                 ParentId = k2.ParentKategori_Id,
-                                 SubId = k2.Id,
-                                 Level = p.Level + 1
-                             }
-                         )
-                         .Where(t => t.ParentId == null || (t.ParentId != 3004 || (t.ParentId == 3004 && t.Id == 3010)));
-
-                        var orderedQuery = query.ToList()
-                                           .OrderBy(t => t.ParentId == null ? dbContext.Kategori.FirstOrDefault(k => k.Id == t.Id)?.Order : dbContext.Kategori.FirstOrDefault(k => k.Id == t.ParentId)?.Order)
-                                           .ThenBy(t => t.SortOrder)
-                                           .ThenBy(t => t.Level)
-                                           .ThenBy(t => t.Id);
-
-                        var result = orderedQuery.ToList();
-                        rowkeluar = orderedQuery.Count() + row;
+                        var result = KategoriQuery.GetKategoriResults(new int[] { 3025, 3003, 3006, 3004 }, 3010, dbContext);
+                        rowkeluar = result.Count() + row;
                         foreach (var item in result)
                         {
                             worksheet.Cell(row, 1).Value = item.Name;
-                            if (item.SubId == null) { worksheet.Cell(row, 1).Style.Font.Bold = true; }
+                            if (item.SubId == null) { worksheet.Cell(row, 1).Style.Font.Bold = true; }  
                             else { worksheet.Cell(row, 1).Style.Font.Bold = false; }
                             col = 2;
-                            int? parentId = item.ParentId; 
-                            int? subId = item.SubId; 
+                            int? parentId = item.ParentId;
+                            int? subId = item.SubId;
                             string type = "2";
 
                             var results = dbContext.SUMReportHistoryCashflow(parentId, subId, type);
@@ -301,13 +212,65 @@ namespace ReportHistoryCashflow
             }
         }
 
+        public static class KategoriQuery
+        {
+            public static List<KategoriResult> GetKategoriResults(int[] param1, int param2, DataContext dbContext)
+            {
+                var query = (
+                    from k1 in dbContext.Kategori
+                    where param1.Contains(k1.Id)
+                    select new KategoriResult
+                    {
+                        Name = k1.Name,
+                        Id = k1.Id,
+                        SortOrder = 1,
+                        ParentId = k1.ParentKategori_Id,
+                        SubId = null,
+                        Level = 0
+                    }
+                )
+                .Concat(
+                    from k2 in dbContext.Kategori
+                    join p in (
+                        from k3 in dbContext.Kategori
+                        where param1.Contains(k3.Id)
+                        select new
+                        {
+                            Id = k3.Id,
+                            Level = 0,
+                            ParentId = k3.Id,
+                            Order = k3.Order
+                        }
+                    ) on k2.ParentKategori_Id equals p.Id
+                    select new KategoriResult
+                    {
+                        Name = k2.Id == 3004 && k2.Name == "Remis" ? "      " + k2.Name : "      " + k2.Name,
+                        Id = k2.Id,
+                        SortOrder = p.Level + 1,
+                        ParentId = k2.ParentKategori_Id,
+                        SubId = k2.Id,
+                        Level = p.Level + 1
+                    }
+                )
+                .Where(t => t.ParentId == null || (t.ParentId != 3004 || (t.ParentId == 3004 && t.Id == param2)));
+
+                var orderedQuery = query.ToList()
+                                   .OrderBy(t => t.ParentId == null ? dbContext.Kategori.FirstOrDefault(k => k.Id == t.Id)?.Order : dbContext.Kategori.FirstOrDefault(k => k.Id == t.ParentId)?.Order)
+                                   .ThenBy(t => t.SortOrder)
+                                   .ThenBy(t => t.Level)
+                                   .ThenBy(t => t.Id);
+
+                return orderedQuery.ToList();
+            }
+        }
+
         protected override void OnStop()
         {
             stopEvent.Set();
-            
+
             if (!workerThread.Join(TimeSpan.FromSeconds(10)))
             {
-                
+
             }
 
             stopEvent.Dispose();

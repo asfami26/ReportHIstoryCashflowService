@@ -26,6 +26,5 @@ namespace ReportHistoryCashflow.Model
             public int Level { get; set; }
         }
 
-        // Optional: You can add navigation properties here if needed
     }
 }
