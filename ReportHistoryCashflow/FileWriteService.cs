@@ -1,55 +1,59 @@
 ﻿using ClosedXML.Excel;
 using System.Data;
-using System.ServiceProcess;
 using ReportHistoryCashflow.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-
 using static ReportHistoryCashflow.Model.Kategori;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace ReportHistoryCashflow
 {
-    public class FileWriteService : ServiceBase
+    public class FileWriteService : IHostedService
     {
+        private CancellationTokenSource _cts;
 
-        private Thread workerThread;
-        private ManualResetEvent stopEvent;
-        public FileWriteService()
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            ServiceName = "ReportHistoryCashflow";
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            Task.Run(ExecuteAsync, _cts.Token);
+            return Task.CompletedTask;
         }
 
-        protected void Onstart(string[] args)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
-            stopEvent = new ManualResetEvent(false);
-            workerThread = new Thread(Working);
-            workerThread.Start();
+            _cts?.Cancel();
+            return Task.CompletedTask;
         }
 
-        public void Working()
+        private async Task ExecuteAsync()
         {
-
-            string basePath = Directory.GetCurrentDirectory();
-
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-
-            var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DbConnection"));
-
-            var options = optionsBuilder.Options;
-
-            int nsleep = 1;
-            int rowhasil = 0;
-            int col = 0;
-            int row = 0;
-            int rowkeluar = 0;
             try
             {
-                while (!stopEvent.WaitOne(0))
+                string basePath = Directory.GetCurrentDirectory();
+
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+
+                var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("DbConnection"));
+
+                var options = optionsBuilder.Options;
+
+                int rowhasil = 0;
+                int col = 0;
+                int row = 0;
+                int rowkeluar = 0;
+                while (!_cts.Token.IsCancellationRequested)
                 {
                     DateTime currentDate = DateTime.Now;
                     DateTime nextYearDate = currentDate.AddYears(1);
@@ -150,7 +154,7 @@ namespace ReportHistoryCashflow
                         foreach (var item in result)
                         {
                             worksheet.Cell(row, 1).Value = item.Name;
-                            if (item.SubId == null) { worksheet.Cell(row, 1).Style.Font.Bold = true; }  
+                            if (item.SubId == null) { worksheet.Cell(row, 1).Style.Font.Bold = true; }
                             else { worksheet.Cell(row, 1).Style.Font.Bold = false; }
                             col = 2;
                             int? parentId = item.ParentId;
@@ -203,12 +207,19 @@ namespace ReportHistoryCashflow
 
                     Console.WriteLine("Data exported to ReportHistoryCashflow.xlsx");
 
-                    Thread.Sleep(nsleep * 86400 * 1000);
+                
+
+                    await Task.Delay(1000* 86400, _cts.Token); // Contoh: menunda selama 1 detik
                 }
             }
-            catch (Exception)
+            catch (TaskCanceledException)
             {
-                throw;
+                // Tugas dibatalkan, tidak perlu melakukan apa-apa
+            }
+            catch (Exception ex)
+            {
+                // Tangani kesalahan lainnya sesuai kebutuhan Anda
+                Console.WriteLine("Terjadi kesalahan: " + ex.Message);
             }
         }
 
@@ -262,23 +273,6 @@ namespace ReportHistoryCashflow
 
                 return orderedQuery.ToList();
             }
-        }
-
-        protected override void OnStop()
-        {
-            stopEvent.Set();
-
-            if (!workerThread.Join(TimeSpan.FromSeconds(10)))
-            {
-
-            }
-
-            stopEvent.Dispose();
-        }
-
-        public void OnDebug()
-        {
-            Onstart(null!);
         }
     }
 }

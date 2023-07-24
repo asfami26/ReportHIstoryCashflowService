@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using ReportHistoryCashflow.Data;
 using System;
 using System.IO;
-using System.ServiceProcess;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReportHistoryCashflow
 {
@@ -12,25 +12,26 @@ namespace ReportHistoryCashflow
     {
         static void Main(string[] args)
         {
-           
-            using (var service = new FileWriteService())
-            {
-                
-                service.OnDebug();
-                if (Environment.UserInteractive)
-                {
-                    Console.WriteLine("Press enter to stop the service...");
-                    Console.ReadLine();
-                    Environment.Exit(0);
-                }
-                else
-                {
-                    service.Working();
-                }
-            }
+        #if DEBUG
+                    // Jalankan layanan dalam mode debug
+                    var service = new FileWriteService();
+                    service.StartAsync(CancellationToken.None).Wait();
+        #else
+                    // Jalankan GenericHost dalam mode production
+                    var host = CreateHostBuilder(args).Build();
+                    host.Run();
+        #endif
+
+            // Tetapkan konsol tetap terbuka hingga tombol apa pun ditekan
+            Console.ReadKey();
         }
 
-     
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // Daftarkan hosted service (FileWriteService) di sini
+                    services.AddHostedService<FileWriteService>();
+                });
     }
 }
-
