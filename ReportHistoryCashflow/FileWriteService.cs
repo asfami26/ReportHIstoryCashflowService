@@ -178,7 +178,7 @@ namespace ReportHistoryCashflow
                                 if (val.TotalKategori != "0")
                                 {
                                     string danamasuk = worksheet.Cell(rowhasil, col).Value.ToString();
-                                    string danakeluar = val.TotalKategori.ToString();
+                                    string danakeluar = val?.TotalKategori?.ToString() ?? "";
                                     decimal decimalA = decimal.TryParse(danamasuk, out decimal decimalValueA) ? decimalValueA : 0;
                                     decimal decimalB = decimal.TryParse(danakeluar, out decimal decimalValueB) ? decimalValueB : 0;
                                     decimal hasil = decimalB - decimalA;
