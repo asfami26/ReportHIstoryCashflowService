@@ -1,0 +1,4 @@
+-Run SP SUMReportHistoyCashflow di datebase Prod
+-di Table ProTrxFinansial_Log buat dua Index 
+ *tanggal_proyeksi 
+ *typetransaksi 
