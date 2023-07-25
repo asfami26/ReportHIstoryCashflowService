@@ -17,13 +17,13 @@ namespace ReportHistoryCashflow
 {
     public class FileWriteService : IHostedService
     {
-        private CancellationTokenSource _cts;
-        private bool _continueTask = true;
+        private CancellationTokenSource? _cts;
         private readonly IHostApplicationLifetime _appLifetime;
 
         public FileWriteService(IHostApplicationLifetime appLifetime)
         {
             _appLifetime = appLifetime;
+            _cts = new CancellationTokenSource();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -36,7 +36,6 @@ namespace ReportHistoryCashflow
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _cts?.Cancel();
-            _continueTask = false;
             return Task.CompletedTask;
         }
 
@@ -61,7 +60,7 @@ namespace ReportHistoryCashflow
                 int col = 0;
                 int row = 0;
                 int rowkeluar = 0;
-                while (!_cts.Token.IsCancellationRequested)
+                while (_cts != null && !_cts.Token.IsCancellationRequested)
                 {
                     DateTime currentDate = DateTime.Now;
                     DateTime nextYearDate = currentDate.AddYears(1);
@@ -179,7 +178,7 @@ namespace ReportHistoryCashflow
                                 if (val.TotalKategori != "0")
                                 {
                                     string danamasuk = worksheet.Cell(rowhasil, col).Value.ToString();
-                                    string danakeluar = val.TotalKategori.ToString();
+                                    string danakeluar = val?.TotalKategori?.ToString() ?? "";
                                     decimal decimalA = decimal.TryParse(danamasuk, out decimal decimalValueA) ? decimalValueA : 0;
                                     decimal decimalB = decimal.TryParse(danakeluar, out decimal decimalValueB) ? decimalValueB : 0;
                                     decimal hasil = decimalB - decimalA;
@@ -215,7 +214,7 @@ namespace ReportHistoryCashflow
 
                     Console.WriteLine("Data exported to ReportHistoryCashflow.xlsx");
 
-                    /*await Task.Delay(1000, _cts.Token);*/ // Contoh: menunda selama 5 detik
+                    await Task.Delay(1000, _cts.Token); // Contoh: menunda selama 1 detik
                     StopHost();
                 }
             }

@@ -6,7 +6,7 @@ namespace ReportHistoryCashflow.Model
     {
         public int Id { get; set; }
         public int Type { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int? Order { get; set; }
         public int? ParentKategori_Id { get; set; }
         public DateTime? CreatedTime { get; set; }
@@ -18,7 +18,7 @@ namespace ReportHistoryCashflow.Model
 
         public class KategoriResult
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public int Id { get; set; }
             public int SortOrder { get; set; }
             public int? ParentId { get; set; }

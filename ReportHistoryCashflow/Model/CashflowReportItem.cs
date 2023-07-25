@@ -11,7 +11,7 @@ namespace ReportHistoryCashflow.Model
         public DateTime Tanggal { get; set; }
         public int Kategori { get; set; }
         public int SubKategori { get; set; }
-        public string Nominal { get; set; }
-        public string TotalKategori { get; set; }
+        public string? Nominal { get; set; }
+        public string? TotalKategori { get; set; }
     }
 }
