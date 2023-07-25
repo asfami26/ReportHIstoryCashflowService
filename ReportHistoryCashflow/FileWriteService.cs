@@ -18,6 +18,13 @@ namespace ReportHistoryCashflow
     public class FileWriteService : IHostedService
     {
         private CancellationTokenSource _cts;
+        private bool _continueTask = true;
+        private readonly IHostApplicationLifetime _appLifetime;
+
+        public FileWriteService(IHostApplicationLifetime appLifetime)
+        {
+            _appLifetime = appLifetime;
+        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -29,6 +36,7 @@ namespace ReportHistoryCashflow
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _cts?.Cancel();
+            _continueTask = false;
             return Task.CompletedTask;
         }
 
@@ -207,9 +215,8 @@ namespace ReportHistoryCashflow
 
                     Console.WriteLine("Data exported to ReportHistoryCashflow.xlsx");
 
-                
-
-                    await Task.Delay(1000* 86400, _cts.Token); // Contoh: menunda selama 1 detik
+                    /*await Task.Delay(1000, _cts.Token);*/ // Contoh: menunda selama 5 detik
+                    StopHost();
                 }
             }
             catch (TaskCanceledException)
@@ -222,6 +229,13 @@ namespace ReportHistoryCashflow
                 Console.WriteLine("Terjadi kesalahan: " + ex.Message);
             }
         }
+
+        public void StopHost()
+        {
+            _cts?.Cancel();
+            _appLifetime.StopApplication();
+        }
+
 
         public static class KategoriQuery
         {
