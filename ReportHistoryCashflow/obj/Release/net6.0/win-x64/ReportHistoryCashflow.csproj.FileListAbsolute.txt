@@ -1,6 +1,5 @@
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.exe
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\appsettings.json
-C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.dll.config
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.deps.json
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.runtimeconfig.json
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.dll
@@ -358,3 +357,4 @@ C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportH
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\mscorrc.dll
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\msquic.dll
 C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ucrtbase.dll
+C:\Users\User\Desktop\ReportHistoryCashflow\ReportHIstoryCashflowService\ReportHistoryCashflow\bin\Release\net6.0\win-x64\ReportHistoryCashflow.dll.config
