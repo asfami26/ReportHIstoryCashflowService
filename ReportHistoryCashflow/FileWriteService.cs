@@ -235,7 +235,6 @@ namespace ReportHistoryCashflow
             _appLifetime.StopApplication();
         }
 
-
         public static class KategoriQuery
         {
             public static List<KategoriResult> GetKategoriResults(int[] param1, int param2, DataContext dbContext)

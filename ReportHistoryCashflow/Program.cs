@@ -22,8 +22,6 @@ namespace ReportHistoryCashflow
                     host.Run();
         #endif
 
-            // Tetapkan konsol tetap terbuka hingga tombol apa pun ditekan
-            Console.ReadKey();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
