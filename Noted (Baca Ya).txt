@@ -1,4 +1,20 @@
+
 -Run SP SUMReportHistoyCashflow di datebase Prod
 -di Table ProTrxFinansial_Log buat dua Index 
  *tanggal_proyeksi 
  *typetransaksi 
+
+Table Yang Digunakan Sesuai Model Yang ada dalam Project
+-Kategori
+-ProTrxFinansial
+-ProTRxfinansial_log
+-ProTrxFinansialItem
+
+Model
+CashflowReportItem.cs // Digunakan untuk menampung data pada yang dihasilkan SP SUMReprotHistoryCashflow
+Kategori.cs Koneksi Ke table Kategori
+   Noted : di dalam model kategori ada class KategoriResult digunakan untuk menampung data parent kategori  
+
+Framework yang digunakan
+- Entityframework 7.0.9
+- .Net Core 6
